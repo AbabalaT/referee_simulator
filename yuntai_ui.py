@@ -3,6 +3,9 @@ from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow
 
+note0 = '按键预览：'
+key4send = 0
+
 class Ui(object):
     def getPos(self, event):
         x = event.pos().x()
@@ -77,18 +80,12 @@ class Ui(object):
         MainWindow.setTabOrder(self.key3, self.key4)
         MainWindow.setTabOrder(self.key4, self.key1)
 
-        # self.key1.setFocusPolicy(QtCore.Qt.NoFocus)
-        # self.key2.setFocusPolicy(QtCore.Qt.NoFocus)
-        # self.key3.setFocusPolicy(QtCore.Qt.NoFocus)
-        # self.key4.setFocusPolicy(QtCore.Qt.NoFocus)
-        # self.image.setFocusPolicy(QtCore.Qt.NoFocus)
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "云台手GUI"))
         self.key3.setText(_translate("MainWindow", "发送哨兵路径"))
         self.key1.setText(_translate("MainWindow", "清除哨兵路径"))
-        self.preview.setText(_translate("MainWindow", "按键预览:无"))
+        self.preview.setText(_translate("MainWindow", note0+'无'))
         self.key4.setText(_translate("MainWindow", "发送 按键+坐标"))
         self.note.setText(_translate("MainWindow", "左键：选取坐标点    右键：添加哨兵路径点"))
         self.key2.setText(_translate("MainWindow", "删除最后一点"))
@@ -98,10 +95,11 @@ class MainWindow(QMainWindow, Ui):
         super(MainWindow, self).__init__(parent)  # 初始化父类属性
         self.setupUi(self)
 
-    def keyPressEvent(self, QKeyEvent):  # 键盘某个键被按下时调用
-        if QKeyEvent.key() == Qt.Key_C:  # 判断是否按下了A键
-            # key()  是普通键
-            print('按下了C键')
+    def keyPressEvent(self, QKeyEvent):
+        if Qt.Key_A <= QKeyEvent.key() <= Qt.Key_Z:
+            key4send = QKeyEvent.key()
+
+            ui.preview.setText(note0+chr(key4send))
 
 if __name__=="__main__":
     import sys, cv2
