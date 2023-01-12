@@ -2,27 +2,63 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMainWindow
+import sys, cv2
 
 note0 = '按键预览：'
+points = []
 key4send = 0
+location = [0, 0]
+
+map_img = cv2.imread('map.png')
+cv2.cvtColor(map_img, cv2.COLOR_BGR2RGB, map_img)
+map_height, map_width, map_bytesPerComponent = map_img.shape
 
 class Ui(object):
+    def init_img(self):
+        image = map_img.copy()
+        map_QImg = QImage(image.data, map_width, map_height, 3 * map_width, QImage.Format_RGB888)
+        map_pixmap = QPixmap.fromImage(map_QImg)
+        self.image.setPixmap(map_pixmap)
+
+    def refresh_img(self):
+        image = map_img.copy()
+        cv2.rectangle(image, (location[0]-8,location[1]-8), (location[0]+8,location[1]+8), (0, 255, 0), -1)
+        if len(points)>0:
+            for [px,py] in points:
+                cv2.circle(image, (px,py), 8, (255,125,0),-1)
+            if len(points)>1:
+                for i in range(1,len(points)):
+                    cv2.line(image, tuple(points[i-1]), tuple(points[i]), (255,125,0), 3)
+        map_QImg = QImage(image.data, map_width, map_height, 3 * map_width, QImage.Format_RGB888)
+        map_pixmap = QPixmap.fromImage(map_QImg)
+        self.image.setPixmap(map_pixmap)
+
     def getPos(self, event):
         x = event.pos().x()
         y = event.pos().y()
         if event.buttons() == QtCore.Qt.LeftButton:
-            print(x, y, '左键')
+            global location
+            location = [x,y]
         elif event.buttons() == QtCore.Qt.RightButton:
-            print(x, y, '右键')
+            points.append([x,y])
+        ui.refresh_img()
 
     def SendRoute(self):
+        global points
+        points = []
         print('发送哨兵路径！')
+        ui.refresh_img()
 
     def ClearRoute(self):
+        global points
+        points = []
         print('清除哨兵路径！')
+        ui.refresh_img()
 
     def DeletePoint(self):
-        print('删除路径点！')
+        if len(points) > 0:
+            points.pop()
+        ui.refresh_img()
 
     def SendLocation(self):
         print('发送 按键+坐标！')
@@ -52,7 +88,7 @@ class Ui(object):
         self.key4.clicked.connect(self.SendLocation)
 
         self.preview = QtWidgets.QLabel(self.centralwidget)
-        self.preview.setGeometry(QtCore.QRect(870, 220, 150, 60))
+        self.preview.setGeometry(QtCore.QRect(900, 220, 200, 60))
         self.preview.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.preview.setAlignment(QtCore.Qt.AlignCenter)
         self.preview.setObjectName("preview")
@@ -98,20 +134,29 @@ class MainWindow(QMainWindow, Ui):
     def keyPressEvent(self, QKeyEvent):
         if Qt.Key_A <= QKeyEvent.key() <= Qt.Key_Z:
             key4send = QKeyEvent.key()
-
-            ui.preview.setText(note0+chr(key4send))
+            note1 = ''
+            if key4send == Qt.Key_A :
+                note1='（攻打）'
+            elif key4send == Qt.Key_B :
+                note1='（防守）'
+            elif key4send == Qt.Key_C :
+                note1='（待命）'
+            elif key4send == Qt.Key_D :
+                note1='（修正定位）'
+            elif key4send == Qt.Key_E :
+                note1='（开陀螺）'
+            elif key4send == Qt.Key_F :
+                note1='（关陀螺）'
+            elif key4send == Qt.Key_G :
+                note1='（开游走）'
+            elif key4send == Qt.Key_H :
+                note1='（关游走）'
+            ui.preview.setText(note0+chr(key4send)+note1)
 
 if __name__=="__main__":
-    import sys, cv2
+
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
     ui.show()
-
-    map_img = cv2.imread('map.png')
-    cv2.cvtColor(map_img, cv2.COLOR_BGR2RGB, map_img)
-    map_height, map_width, map_bytesPerComponent = map_img.shape
-    map_QImg = QImage(map_img.data, map_width, map_height, 3 * map_width, QImage.Format_RGB888)
-    map_pixmap = QPixmap.fromImage(map_QImg)
-    ui.image.setPixmap(map_pixmap)
-
+    ui.init_img()
     sys.exit(app.exec_())
