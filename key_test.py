@@ -8,16 +8,11 @@ from PyQt5.QtGui import QImage, QPixmap
 class UI(QWidget):
     def __init__(self):
         super().__init__()
-        self.initUi()
-    def initUi(self):
         self.setGeometry(100, 100, 1100, 600)
         self.setWindowTitle('云台手GUI')
-
-        self.lab = QLabel('方向',self)
-        self.lab.setGeometry(150,100,50,50)
-
+        self.lab = QLabel('方向', self)
+        self.lab.setGeometry(150, 100, 50, 50)
         self.show()
-
     def keyPressEvent(self, e):   ####通过该方法来进行按键函数重写
         print('Key Down!')
         if e.key() == Qt.Key_Up:
@@ -28,7 +23,6 @@ class UI(QWidget):
             self.lab.setText('←')
         else:
             self.lab.setText('→')
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ui = UI()

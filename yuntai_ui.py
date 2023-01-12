@@ -93,6 +93,7 @@ class Ui_MainWindow(object):
         self.key2.setText(_translate("MainWindow", "删除最后一点"))
 
 
+
 if __name__=="__main__":
     import sys, cv2
     app = QtWidgets.QApplication(sys.argv)
