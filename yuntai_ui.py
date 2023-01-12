@@ -1,8 +1,9 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QKeyEvent
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMainWindow
 
-class Ui_MainWindow(object):
+class Ui(object):
     def getPos(self, event):
         x = event.pos().x()
         y = event.pos().y()
@@ -92,15 +93,21 @@ class Ui_MainWindow(object):
         self.note.setText(_translate("MainWindow", "左键：选取坐标点    右键：添加哨兵路径点"))
         self.key2.setText(_translate("MainWindow", "删除最后一点"))
 
+class MainWindow(QMainWindow, Ui):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)  # 初始化父类属性
+        self.setupUi(self)
 
+    def keyPressEvent(self, QKeyEvent):  # 键盘某个键被按下时调用
+        if QKeyEvent.key() == Qt.Key_C:  # 判断是否按下了A键
+            # key()  是普通键
+            print('按下了C键')
 
 if __name__=="__main__":
     import sys, cv2
     app = QtWidgets.QApplication(sys.argv)
-    widget = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(widget)
-    widget.show()
+    ui = MainWindow()
+    ui.show()
 
     map_img = cv2.imread('map.png')
     cv2.cvtColor(map_img, cv2.COLOR_BGR2RGB, map_img)
